@@ -8,7 +8,7 @@ sudo apt-get update
 sudo systemctl enable docker --now 
 sudo usermod -aG docker $elisavetk
 sudo docker pull mongo
-sudo docker run -d -p 27017:27017 --name mongodb mongo
+sudo docker run -d -p 27017:27017 --name mongodb_02 mongo
 sudo docker ps -a
 sudo docker start mongodb_02
 python3 app_02.py
