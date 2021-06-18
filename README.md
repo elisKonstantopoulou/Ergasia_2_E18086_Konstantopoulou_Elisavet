@@ -16,6 +16,12 @@ python3 app_02.py
 
 
 # Python Script 
+## ΠΡΩΤΟΒΟΥΛΙΕΣ
+Ελήφθησαν οι παρακάτω πρωτοβουλίες στην εκπόνιση της εργασίας:
+* Το όνομα του χρήστη στο σύστημα/πρόγραμμα είναι το *username*
+* Η αυθεντικοποίηση των χρηστών (simple users, admin) να γίνεται με username και password
+* Οι admin πρέπει να κάνουν login στ σύστημα
+
 ## ENDPOINT 0 - ΔΗΜΙΟΥΡΓΙΑ ΧΡΗΣΤΗ
 ```python
 if users.find({"email":data["email"]}).count()== 0:
@@ -60,8 +66,6 @@ if "name" in data:
 
 
 ## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΛΑΘΙ
-
-
 
 
 ## ENDPOINT 4 - ΕΜΦΑΝΙΣΗ ΚΑΛΑΘΙΟΥ
