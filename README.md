@@ -20,7 +20,9 @@ python3 app_02.py
 Ελήφθησαν οι παρακάτω πρωτοβουλίες στην εκπόνιση της εργασίας:
 * Το όνομα του χρήστη στο σύστημα/πρόγραμμα είναι το *username*
 * Η αυθεντικοποίηση των χρηστών (simple users, admin) να γίνεται με username και password
-* Οι admin πρέπει να κάνουν login στ σύστημα
+* Η αυθεντικοποίηση των χρηστών (είτε simple users ή admin) πραγματοποιείται πριν από κ=την εκτέλεση των εντολών των endpoints
+* Οι admin πρέπει να κάνουν login στο σύστημα
+* Γίνεται έλεγχος σε κάθε endpoint, εάν ο χρήστης που χησιμοποιεί την εκάστοτε στιγμή το πρόγραμα είναι simple user ή admin, έτσι ώστε να μην μπορεί ένα απλός χρήστης να εκτελέσει τα endpoints ενός διαχειριστή, και το ανάποδο
 
 ## ENDPOINT 0 - ΔΗΜΙΟΥΡΓΙΑ ΧΡΗΣΤΗ
 ```python
@@ -32,8 +34,10 @@ if users.find({"email":data["email"]}).count()== 0:
     else:
      return Response("A user with the given email already exists", status=401, mimetype='application/json')
 ```
-Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για να μπορεί να μπορεί να εγγραφεί κάποιος απλός χρήστης στο σύστημα. Το αξιοσημείωτο είναι το ότι αν κάποιος το κάνει αυτό, θα εισαχθεί στους 'Users', που είναι οι απλοί χρήστες. 
+Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για να μπορεί να μπορεί να εγγραφεί κάποιος απλός χρήστης στο σύστημα. Το αξιοσημείωτο είναι το ότι αν κάποιος βάλει σαν username το **_'admin'_** θα εγγραφεί ως Admin στο σύστημα (επομένως το πεδίο category θα έχε ιτην τιμή Admin), αλλιώς θα εισαχθεί στους 'Users' ως απλός χρήστης. Στα παρακάτω csreenshots βλέπουμε πρώτα την δημιουργία δύο απλών χρηστών και μετά την δημιουργία ενός διαχειριστή.
 
+<img src="/ergasia_2_screenshots/endpoint_00_createUser.png" width=100%>
+<img src="/ergasia_2_screenshots/admin_creaated.png" width=100%>
 
 ## ENDPOINT 1 - LOGIN
 ```python
@@ -45,19 +49,23 @@ if users.find_one({"$and":[{"username":data["username"]}, {"password":data["pass
         return Response("Wrong username or password.", status=400, mimetype='application/json')
 ```
 Στο παραπάνω κομμάτι κώδικα ελέγχουμε εαν ο συνδυασμός του *username* και *password* που δεχτήκαμε υπάρχει στην βάση. Εάν όχι, τότε επιστρέφεται μήνυμα που ενημερώνει τον χρήστη ότι τα credentials είναι λάθος.
+Στα παρακάτω csreenshots βλέπουμε πρώτα το login ενός απλού χρήστη και μετά το login ενός διαχειριστή.
+<img src="/ergasia_2_screenshots/endpoint_01_login.png" width=100%>
+<img src="/ergasia_2_screenshots/endpoint_admin_00_login.png" width=100%>
 
 
 ## ENDPOINT 2 - ΑΝΑΖΗΤΗΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
-if "name" in data:
-        search = products.find({'name':data["name"]})
-        temp=[]
-        for product in search:
-            #allow serialization
-            product['_id'] = None
-            temp.append(product)
-        if temp != None:    
-            return Response(json.dumps(prodList, indent=4), status=200, mimetype='application/json')
+elif "category" in data:
+                search = products.find({'category':data["category"]})
+                temp=[]
+                for product in search:
+                    #allow serialization
+                    product['_id'] = None
+                    temp.append(product)
+                if temp != None:     
+                    sort = sorted(temp, key = lambda i: i['price'])
+                    return Response(json.dumps(sort, indent=4), status=200, mimetype='application/json')   
 ```
 Με την μέθοδο **_find()_** αναζητούμε ένα προϊόν με βάση την είσοδο του χρήστη. Εφόσον ο χρήστης μπορεί να εισάγει είτε το όνομα, είτε την κατηγορία είτε τον μοναδικό κωδικό του προϊόντος ξεκινάμε το κομμάτι αυτό με ```python if "name" in data``` που σημαίνει ότι θέτουμε σαν συνθήκη το δεδομένο που μας έδωσε ο χρήστης να είναι το όνομα ενός προϊόντος. Χρησιμοποιείτα το ```python if "category" in data``` και το ```python if "id" in data``` για να γίνει αναζήτηση με βάση την κατηγορία και τον μοναδικό κωδικό του προϊόντος, αντίστοιχα.
 
