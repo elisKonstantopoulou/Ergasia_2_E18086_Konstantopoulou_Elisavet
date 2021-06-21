@@ -43,8 +43,9 @@ if users.find({"email":data["email"]}).count()== 0:
 ```
 Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για την εισαγωγή χρηστών στην βάση του συστήματος. Το αξιοσημείωτο είναι το ότι αν κάποιος βάλει σαν username το **_'admin'_** θα εγγραφεί ως Admin στο σύστημα (επομένως το πεδίο category θα έχει την τιμή Admin), αλλιώς θα εισαχθεί στους 'Users' ως απλός χρήστης. Στα παρακάτω screenshots βλέπουμε πρώτα την δημιουργία δύο απλών χρηστών και μετά την δημιουργία ενός διαχειριστή.
 
-<img src="/ergasia_2_screenshots/endpoint_00_createUser.png" width=100%>
-<img src="/ergasia_2_screenshots/admin_creaated.png" width=100%>
+<img src="/ergasia_2_screenshots/00_createUser/creatingUsers.png" width=100%>
+<img src="/ergasia_2_screenshots/00_createUser/users_when_created.png" width=100%>
+<img src="/ergasia_2_screenshots/00_createUser/admin_created.png" width=100%>
 
 ## ENDPOINT 1 - LOGIN
 ```python
@@ -57,8 +58,8 @@ if users.find_one({"$and":[{"username":data["username"]}, {"password":data["pass
 ```
 Στο παραπάνω κομμάτι κώδικα ελέγχουμε εαν ο συνδυασμός του *username* και *password* που δεχτήκαμε υπάρχει στην βάση. Εάν όχι, τότε επιστρέφεται μήνυμα που ενημερώνει τον χρήστη ότι τα credentials είναι λάθος.
 Στα παρακάτω csreenshots βλέπουμε πρώτα το login ενός απλού χρήστη και μετά το login ενός διαχειριστή.
-<img src="/ergasia_2_screenshots/endpoint_01_login.png" width=100%>
-<img src="/ergasia_2_screenshots/endpoint_admin_00_login.png" width=100%>
+<img src="/ergasia_2_screenshots/01_login/user_1_logged_in.png" width=100%>
+<img src="/ergasia_2_screenshots/01_login/endpoint_admin_00_login.png" width=100%>
 
 ## ENDPOINT 2 - ΑΝΑΖΗΤΗΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
@@ -75,7 +76,7 @@ elif "category" in data:
 ```
 Με την μέθοδο **_find()_** αναζητούμε ένα προϊόν με βάση την είσοδο του χρήστη. Εφόσον ο χρήστης μπορεί να εισάγει είτε το όνομα, είτε την κατηγορία είτε τον μοναδικό κωδικό του προϊόντος ξεκινάμε το κομμάτι αυτό με ```python if "name" in data``` που σημαίνει ότι θέτουμε σαν συνθήκη το δεδομένο που μας έδωσε ο χρήστης να είναι το όνομα ενός προϊόντος. Χρησιμοποιείτα το ```python if "category" in data``` και το ```python if "id" in data``` για να γίνει αναζήτηση με βάση την κατηγορία και τον μοναδικό κωδικό του προϊόντος, αντίστοιχα.
 
-Ζητείται αλφανητική ταξινόμηση σε περίπτωση που ο χρήστης αναζητήσει κάποιο προϊόν με βάση την κατηγορία του................
+<img src="/ergasia_2_screenshots/02_user_searchProduct/endpoint_03_searchProduct.png" width=100%>
 
 ## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΛΑΘΙ
 ```python 
@@ -112,6 +113,8 @@ else:
         * Στην περίπτωση αυτή, ψάχνουμε το καλάθι, μήπως έχει ήδη μέσα το προϊόν που εισήγαγε ο χρήστης.
         * Εάν το έχει, επιστρέφεται μήνυμα ότι το προϊόν υπάρχει ήη στο καλάθι.
         * Εάν δεν το έχει, ακολουθούνται τα ίδια βήματα με την παραπάνωπερίπτωση.
+ 
+<img src="/ergasia_2_screenshots/03_user_addToCart/adding_two_products_in_cart.png" width=100%>
 
 ## ENDPOINT 4 - ΕΜΦΑΝΙΣΗ ΚΑΛΑΘΙΟΥ
 ```python 
@@ -126,6 +129,8 @@ currUser = users.find_one({'email':data["email"]})
             return Response("No user found!")
 ```
 Εφόσον το email που δίνεται από τον χρήστη αντιστοιχεί σε κάποιον χρήστη, ο οποίος είναι και απλός χρήστης, τότε επιστρέφεται το καλάθι.
+
+<img src="/ergasia_2_screenshots/04_user_viewCart/viewCart.png" width=100%>
 
 ## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
 ```python 
@@ -153,6 +158,10 @@ user = users.find_one({'email':data["email"]})
 ```
 Με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε τον χρήστη που έχει το email που δόθηκε ως είσοδος και επιστρέφεται μήνυμα ότι ο συγκεκριμένος χρήατης (εμφανίζει το όνομα του χρήστη) έχει διαγραφεί με επιτυχία.
 
+<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUser.png" width=100%>
+<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserr.png" width=100%>
+<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserrr.png" width=100%>
+
 ## ENDPOINT 9 - ADMIN: ΕΙΣΑΓΩΓΗ ΝΕΟΥ ΠΡΟΙΟΝΤΟΣ
 ```python
     product = {"name": data['name'], "category": data['category'], "quantity":['quantity'], "description":['description'], "price":['price']}
@@ -160,6 +169,9 @@ user = users.find_one({'email':data["email"]})
     return Response(data['name'] + " was added to the MongoDB", status=200, mimetype='application/json')
 ```
 Για να εισαχθεί νέο προϊόν από τον admin πρέπει να εισαχθούν το όνομά, ηκατηγορία, η ποσότητα, η περιγραφή και η τιμή του. Όλα αυτά τα δεδομένα που εισάγει ο χρήστης ,μπαίνουν στην μεταβλητή product και μετά το προϊόν αυτό εισάγεται στο 'products' με την χρήση της μεθόδου **_insert_one()_**.
+
+<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_01_insertProduct(1).png" width=100%>
+<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_01_insertProduct(2).png" width=100%>
 
 ## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
 ```python
@@ -172,6 +184,9 @@ user = users.find_one({'email':data["email"]})
         return Response("No product with that id was found", status=500, mimetype='application/json')
 ```
 Με την μέθοδο **_find_one()_** αναζητούμε ένα προϊόν με βάση το id του και με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε το προϊόν αυτό και επιστρέφεται μήνυμα ότι το συγκεκριμένο προϊόν (εμφανίζει το όνομα του προϊόντος) έχει διαγραφεί με επιτυχία.
+
+<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(1).png" width=100%>
+<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(2).png" width=100%>
 
 ## ENDPOINT 11 - ADMIN: ΕΝΗΜΕΡΩΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
@@ -190,3 +205,6 @@ if product != None:
         return Response("No product with that id was found", status=500, mimetype='application/json')
 ```
 Δίνεται ως είσοδος ο μοναδικός κωδικός του πρϊόντος και αν βρεθεί προϊόν με τέτοιον κωδικό τότε ένα από τα πεδία που εισάγει ο admin (όνομα, τιμή, περιγραφή, απόθεμα) θα ενημερωθούν. Μόλις γίνει αυτό, επιστρέφεται μήνυμα επιτυχούς αλλαγής του προϊόντος μαζί με το όνομά του. Σε διαφορετική περίπτωση, δηλαδή σε περίπτωση που δεν υπήρχε προϊόν με τέτοιον μοναδικό κωδικό, επιστρέφεται το αντίστοιχο μήνυμα λάθους.
+
+<img src="/ergasia_2_screenshots/11_admin_editProductr/endpoint_admin_03_editProduct(1).png" width=100%>
+<img src="/ergasia_2_screenshots/11_admin_editProductr/endpoint_admin_03_editProduct(2).png" width=100%>
