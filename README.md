@@ -44,7 +44,7 @@ if users.find({"email":data["email"]}).count()== 0:
 Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για την εισαγωγή χρηστών στην βάση του συστήματος. Το αξιοσημείωτο είναι το ότι αν κάποιος βάλει σαν username το **_'admin'_** θα εγγραφεί ως Admin στο σύστημα (επομένως το πεδίο category θα έχει την τιμή Admin), αλλιώς θα εισαχθεί στους 'Users' ως απλός χρήστης. Στα παρακάτω screenshots βλέπουμε πρώτα την δημιουργία δύο απλών χρηστών και μετά την δημιουργία ενός διαχειριστή.
 
 <img src="/ergasia_2_screenshots/00_createUser/creatingUsers.png" width=100%>
-<img src="/ergasia_2_screenshots/00_createUser/users_when_created.png" width=100%>
+<img src="/ergasia_2_screenshots/00_createUser/users_when_created.png" width=60%>
 <img src="/ergasia_2_screenshots/00_createUser/admin_created.png" width=100%>
 
 ## ENDPOINT 1 - LOGIN
@@ -159,8 +159,8 @@ user = users.find_one({'email':data["email"]})
 Με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε τον χρήστη που έχει το email που δόθηκε ως είσοδος και επιστρέφεται μήνυμα ότι ο συγκεκριμένος χρήατης (εμφανίζει το όνομα του χρήστη) έχει διαγραφεί με επιτυχία.
 
 <img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUser.png" width=100%>
-<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserr.png" width=100%>
-<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserrr.png" width=100%>
+<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserr.png" width=60%>
+<img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserrr.png" width=60%>
 
 ## ENDPOINT 9 - ADMIN: ΕΙΣΑΓΩΓΗ ΝΕΟΥ ΠΡΟΙΟΝΤΟΣ
 ```python
@@ -170,8 +170,8 @@ user = users.find_one({'email':data["email"]})
 ```
 Για να εισαχθεί νέο προϊόν από τον admin πρέπει να εισαχθούν το όνομά, ηκατηγορία, η ποσότητα, η περιγραφή και η τιμή του. Όλα αυτά τα δεδομένα που εισάγει ο χρήστης ,μπαίνουν στην μεταβλητή product και μετά το προϊόν αυτό εισάγεται στο 'products' με την χρήση της μεθόδου **_insert_one()_**.
 
-<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_01_insertProduct(1).png" width=100%>
-<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_01_insertProduct(2).png" width=100%>
+<img src="/ergasia_2_screenshots/10_admin_insertProduct/endpoint_admin_01_insertProduct(1).png" width=100%>
+<img src="/ergasia_2_screenshots/10_admin_insertProduct/endpoint_admin_01_insertProduct(2).png" width=100%>
 
 ## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
 ```python
@@ -186,7 +186,7 @@ user = users.find_one({'email':data["email"]})
 Με την μέθοδο **_find_one()_** αναζητούμε ένα προϊόν με βάση το id του και με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε το προϊόν αυτό και επιστρέφεται μήνυμα ότι το συγκεκριμένο προϊόν (εμφανίζει το όνομα του προϊόντος) έχει διαγραφεί με επιτυχία.
 
 <img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(1).png" width=100%>
-<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(2).png" width=100%>
+<img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(2).png" width=80%>
 
 ## ENDPOINT 11 - ADMIN: ΕΝΗΜΕΡΩΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
@@ -206,5 +206,5 @@ if product != None:
 ```
 Δίνεται ως είσοδος ο μοναδικός κωδικός του πρϊόντος και αν βρεθεί προϊόν με τέτοιον κωδικό τότε ένα από τα πεδία που εισάγει ο admin (όνομα, τιμή, περιγραφή, απόθεμα) θα ενημερωθούν. Μόλις γίνει αυτό, επιστρέφεται μήνυμα επιτυχούς αλλαγής του προϊόντος μαζί με το όνομά του. Σε διαφορετική περίπτωση, δηλαδή σε περίπτωση που δεν υπήρχε προϊόν με τέτοιον μοναδικό κωδικό, επιστρέφεται το αντίστοιχο μήνυμα λάθους.
 
-<img src="/ergasia_2_screenshots/11_admin_editProductr/endpoint_admin_03_editProduct(1).png" width=100%>
-<img src="/ergasia_2_screenshots/11_admin_editProductr/endpoint_admin_03_editProduct(2).png" width=100%>
+<img src="/ergasia_2_screenshots/11_admin_editProduct/endpoint_admin_03_editProduct(1).png" width=100%>
+<img src="/ergasia_2_screenshots/11_admin_editProduct/endpoint_admin_03_editProduct(2).png" width=100%>
