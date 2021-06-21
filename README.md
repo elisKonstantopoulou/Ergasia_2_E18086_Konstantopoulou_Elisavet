@@ -173,7 +173,7 @@ user = users.find_one({'email':data["email"]})
 Για να εισαχθεί νέο προϊόν από τον admin πρέπει να εισαχθούν το όνομά, ηκατηγορία, η ποσότητα, η περιγραφή και η τιμή του. Όλα αυτά τα δεδομένα που εισάγει ο χρήστης ,μπαίνουν στην μεταβλητή product και μετά το προϊόν αυτό εισάγεται στο 'products' με την χρήση της μεθόδου **_insert_one()_**.
 
 <img src="/ergasia_2_screenshots/09_admin_insertProduct/endpoint_admin_01_insertProduct(1).png" width=100%>
-<img src="/ergasia_2_screenshots/09_admin_insertProduct/endpoint_admin_01_insertProduct(2).png" width=30%>
+<img src="/ergasia_2_screenshots/09_admin_insertProduct/endpoint_admin_01_insertProduct(2).png" width=60%>
 
 ## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
 ```python
