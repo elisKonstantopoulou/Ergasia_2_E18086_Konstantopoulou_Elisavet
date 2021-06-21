@@ -78,6 +78,40 @@ elif "category" in data:
 Ζητείται αλφανητική ταξινόμηση σε περίπτωση που ο χρήστης αναζητήσει κάποιο προϊόν με βάση την κατηγορία του................
 
 ## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΛΑΘΙ
+```python 
+new_quantity = int(data['quantity'])
+if new_quantity<=int(product['quantity']):
+        if not 'cart' in currUser:
+                temporary_cart = [0] 
+                temporary_cart.append({data["productID"]: data["quantity"]})
+                temporary_cart[0] = temporary_cart[0]+float(product['price'])*float(data['quantity'])
+                users.update_one({"email":data['email']},{"$set": {"cart":temporary_cart}})
+                total = temporary_cart[0]
+                return Response(json.dumps(temporary_cart, indent=3), status=200, mimetype='application/json')
+        else: 
+                temporary_cart = currUser['cart']
+                for i in range(1, len(temporary_cart)): # search if same product already in cart
+                        if list(temporary_cart[i].keys())[0] == data['productID']:
+                                return Response("You already have that product!", status=400, mimetype='application/json')
+                        temporary_cart.append({product["productID"]:data["quantity"]})
+                        temporary_cart[0] = temporary_cart[0]+float(product['price'])*float(data['quantity']) 
+                        users.update_one({"email":data['email']},{"$set": {"cart":temporary_cart}})
+                        total = currUser['cart'][0]
+                        return Response(json.dumps(temporary_cart, indent=3), status=200, mimetype='application/json')                        
+else:
+        return Response("Insufficient stock!",status=500,mimetype="application/json")
+```
+Μετά την αυθεντικοποίηση του χρήστη, τον έλεγχο για το εάν είναι απλός χρήστης και τον έλεγχο ύπαρξης του προϊόντος, εκτελούνται οι εντολές για την εισαγωγή δοθέντος ποροϊόντος στο καλάθι του χρήστη. Πρώτα γίνεται έλεγχος αν το stock του συγκεκριμένου προϊόντος επαρκεί για την αγορά και ύστερα, έχουμε δύο περιπτώσεις:
+1. Αυτή να είναι η πρώτη αγορά του χρήστη, επομένως δεν υπάρχει καλάθι
+        * Στην περίπτωση αυτή, δημιουργούμε πρώτα ένα προσωρινό καλάθι, με το πρώτο στοιχείο του να είναι ίσο με μηδέν (αντιπροσωπεύει το συνολικό κόστος του καλαθιού).
+        * Με την χρήση του **_append()_**, προσθέτουμε στην αμέσως επόμενη θέση του προσωρινού καλαθιού το **poductID** και την **τιμή** του προϊόντος.
+        * Αλλάζουμε την τιμή του συνόλου του καλαθιού με το να πολλαπλασιάσουμε την ποσότητα που εισήγαγε ο χρήστης με την τιμή του προΙόντος
+        * Περνάμε στο προσωρινό καλάθι στο dictionary *cart* που δημιουργήθηκε στον χρήστη
+        * Τέλος, επιστρέφουμε το καλάθι
+2. Αυτή να μην είναι η πρώτη αγορά του χήστη, επομένως υπάρχει ήδη καλάθι 
+        * Στην περίπτωση αυτή, ψάχνουμε το καλάθι, μήπως έχει ήδη μέσα το προϊόν που εισήγαγε ο χρήστης.
+        * Εάν το έχει, επιστρέφεται μήνυμα ότι το προϊόν υπάρχει ήη στο καλάθι.
+        * Εάν δεν το έχει, ακολουθούνται τα ίδια βήματα με την παραπάνωπερίπτωση.
 
 ## ENDPOINT 4 - ΕΜΦΑΝΙΣΗ ΚΑΛΑΘΙΟΥ
 ```python 
@@ -92,11 +126,19 @@ currUser = users.find_one({'email':data["email"]})
             return Response("No user found!")
 ```
 Εφόσον το email που δίνεται από τον χρήστη αντιστοιχεί σε κάποιον χρήστη, ο οποίος είναι και απλός χρήστης, τότε επιστρέφεται το καλάθι.
+
 ## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
-
-## ENDPOINT 6 - ΑΓΟΡΑ ΠΡΟΙΟΝΤΩΝ
-
-## ENDPOINT 7 - ΕΜΦΑΝΙΣΗ ΙΣΤΟΡΙΚΟΥ ΠΑΡΑΓΓΕΛΙΩΝ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΧΡΗΣΤΗ
+```python 
+currUser = users.find_one({'email':data["email"]})
+        if currUser != None:
+            flag2 = currUser.get('category')
+            if flag2=="User":            
+                return Response("User's Cart: " + json.dumps(currUser['cart'], indent=4))
+            else:
+                return Response("Only simple users can perform this action.", status=401, mimetype='application/json')
+        else:
+            return Response("No user found!")
+```
 
 ## ENDPOINT 8 - ΔΙΑΓΡΑΦΗ ΧΡΗΣΤΗ
 ```python
