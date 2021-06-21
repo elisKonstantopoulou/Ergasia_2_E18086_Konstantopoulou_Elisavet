@@ -14,7 +14,6 @@ sudo docker start mongodb_02
 python3 app_02.py
 ```
 
-
 # Python Script 
 ## ΠΡΩΤΟΒΟΥΛΙΕΣ
 Ελήφθησαν οι παρακάτω πρωτοβουλίες στην εκπόνιση της εργασίας:
@@ -27,14 +26,22 @@ python3 app_02.py
 ## ENDPOINT 0 - ΔΗΜΙΟΥΡΓΙΑ ΧΡΗΣΤΗ
 ```python
 if users.find({"email":data["email"]}).count()== 0:
-        user = {"name": data['name'], "password":data['password'], "email":['email']}
-        data.update({'category':'User'})
-        users.insert_one(data)
-        return Response(data['name']+" was added to the MongoDB", status=200, mimetype='application/json')
+        user = {"username": data['username'], "password":data['password'], "email":data['email']}
+        if data['username']=="admin":
+            data.update({'category':'Admin'})
+            users.insert_one(data)
+            return Response("Admin was added to the MongoDB", status=200, mimetype='application/json')
+        else:
+            data.update({'category':'User'})
+            total=0
+            data.update({'cart':[{'total':total}]})
+            data.update({'orderHistory':[]})
+            users.insert_one(data)
+            return Response("Simple user " + data['username']+" was added to the MongoDB", status=200, mimetype='application/json')            
     else:
      return Response("A user with the given email already exists", status=401, mimetype='application/json')
 ```
-Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για να μπορεί να μπορεί να εγγραφεί κάποιος απλός χρήστης στο σύστημα. Το αξιοσημείωτο είναι το ότι αν κάποιος βάλει σαν username το **_'admin'_** θα εγγραφεί ως Admin στο σύστημα (επομένως το πεδίο category θα έχε ιτην τιμή Admin), αλλιώς θα εισαχθεί στους 'Users' ως απλός χρήστης. Στα παρακάτω csreenshots βλέπουμε πρώτα την δημιουργία δύο απλών χρηστών και μετά την δημιουργία ενός διαχειριστή.
+Το endpoint αυτό δεν ζητείται στην εκφώνηση, όμως υλοποιήθηκε για την εισαγωγή χρηστών στην βάση του συστήματος. Το αξιοσημείωτο είναι το ότι αν κάποιος βάλει σαν username το **_'admin'_** θα εγγραφεί ως Admin στο σύστημα (επομένως το πεδίο category θα έχει την τιμή Admin), αλλιώς θα εισαχθεί στους 'Users' ως απλός χρήστης. Στα παρακάτω screenshots βλέπουμε πρώτα την δημιουργία δύο απλών χρηστών και μετά την δημιουργία ενός διαχειριστή.
 
 <img src="/ergasia_2_screenshots/endpoint_00_createUser.png" width=100%>
 <img src="/ergasia_2_screenshots/admin_creaated.png" width=100%>
@@ -53,7 +60,6 @@ if users.find_one({"$and":[{"username":data["username"]}, {"password":data["pass
 <img src="/ergasia_2_screenshots/endpoint_01_login.png" width=100%>
 <img src="/ergasia_2_screenshots/endpoint_admin_00_login.png" width=100%>
 
-
 ## ENDPOINT 2 - ΑΝΑΖΗΤΗΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
 elif "category" in data:
@@ -71,32 +77,33 @@ elif "category" in data:
 
 Ζητείται αλφανητική ταξινόμηση σε περίπτωση που ο χρήστης αναζητήσει κάποιο προϊόν με βάση την κατηγορία του................
 
-
-
 ## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΛΑΘΙ
 
-
 ## ENDPOINT 4 - ΕΜΦΑΝΙΣΗ ΚΑΛΑΘΙΟΥ
-
-
+```python 
+currUser = users.find_one({'email':data["email"]})
+        if currUser != None:
+            flag2 = currUser.get('category')
+            if flag2=="User":            
+                return Response("User's Cart: " + json.dumps(currUser['cart'], indent=4))
+            else:
+                return Response("Only simple users can perform this action.", status=401, mimetype='application/json')
+        else:
+            return Response("No user found!")
+```
+Εφόσον το email που δίνεται από τον χρήστη αντιστοιχεί σε κάποιον χρήστη, ο οποίος είναι και απλός χρήστης, τότε επιστρέφεται το καλάθι.
 ## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
-
 
 ## ENDPOINT 6 - ΑΓΟΡΑ ΠΡΟΙΟΝΤΩΝ
 
-
 ## ENDPOINT 7 - ΕΜΦΑΝΙΣΗ ΙΣΤΟΡΙΚΟΥ ΠΑΡΑΓΓΕΛΙΩΝ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΧΡΗΣΤΗ
 
-
-## ENDPOINT 8 - ΔΙΑΓΡΑΦΗ ΛΟΓΑΡΙΑΣΜΟΥ
+## ENDPOINT 8 - ΔΙΑΓΡΑΦΗ ΧΡΗΣΤΗ
 ```python
 user = users.find_one({'email':data["email"]})
-    #does user with the given id exist?
     if user != None:
-        #Deleting the user from the collection 'users'
         users.delete_one(user)
         username = user["name"]
-        #Passing the user's name and the string " was deleted" to variable msg
         msg = username['name'] + " was deleted successfully"
         return Response(msg, status=200, mimetype='application/json')
     else:
@@ -104,38 +111,25 @@ user = users.find_one({'email':data["email"]})
 ```
 Με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε τον χρήστη που έχει το email που δόθηκε ως είσοδος και επιστρέφεται μήνυμα ότι ο συγκεκριμένος χρήατης (εμφανίζει το όνομα του χρήστη) έχει διαγραφεί με επιτυχία.
 
-
-
 ## ENDPOINT 9 - ADMIN: ΕΙΣΑΓΩΓΗ ΝΕΟΥ ΠΡΟΙΟΝΤΟΣ
 ```python
-    #store the product in the product dictionary
     product = {"name": data['name'], "category": data['category'], "quantity":['quantity'], "description":['description'], "price":['price']}
-    #inserting them in Products collection
     products.insert_one(product)
-    #response
     return Response(data['name'] + " was added to the MongoDB", status=200, mimetype='application/json')
 ```
 Για να εισαχθεί νέο προϊόν από τον admin πρέπει να εισαχθούν το όνομά, ηκατηγορία, η ποσότητα, η περιγραφή και η τιμή του. Όλα αυτά τα δεδομένα που εισάγει ο χρήστης ,μπαίνουν στην μεταβλητή product και μετά το προϊόν αυτό εισάγεται στο 'products' με την χρήση της μεθόδου **_insert_one()_**.
 
-
-
 ## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
 ```python
- # find product through id and put the result to dictionary product 
     product = products.find_one({"product_id":data['product_id']})
-    # does the product with the given id exist?
     if product != None:
         products.delete_one(product)
-        #Passing the product's name and the string " was deleted" to variable msg
         msg = product['name'] + " was deleted successfully"
         return Response(msg, status=200, mimetype='application/json')
     else:
         return Response("No product with that id was found", status=500, mimetype='application/json')
 ```
 Με την μέθοδο **_find_one()_** αναζητούμε ένα προϊόν με βάση το id του και με την χρήση της μεθόδου **_delete_one()_** διαγράφουμε το προϊόν αυτό και επιστρέφεται μήνυμα ότι το συγκεκριμένο προϊόν (εμφανίζει το όνομα του προϊόντος) έχει διαγραφεί με επιτυχία.
-
-
-
 
 ## ENDPOINT 11 - ADMIN: ΕΝΗΜΕΡΩΣΗ ΠΡΟΙΟΝΤΟΣ
 ```python
@@ -148,11 +142,9 @@ if product != None:
             product.update_one({'id':data["data"]}, {'$set':{'description':data["description"]}})
         if "stock" in data:
             product.update_one({'id':data["data"]}, {'$set':{'stock':data["stock"]}})
-        #Passing the product's name and the string " was edited successfully" to variable msg
         msg = product['name'] + " was edited successfully"
         return Response(msg, status=200, mimetype='application/json')
     else:
         return Response("No product with that id was found", status=500, mimetype='application/json')
 ```
 Δίνεται ως είσοδος ο μοναδικός κωδικός του πρϊόντος και αν βρεθεί προϊόν με τέτοιον κωδικό τότε ένα από τα πεδία που εισάγει ο admin (όνομα, τιμή, περιγραφή, απόθεμα) θα ενημερωθούν. Μόλις γίνει αυτό, επιστρέφεται μήνυμα επιτυχούς αλλαγής του προϊόντος μαζί με το όνομά του. Σε διαφορετική περίπτωση, δηλαδή σε περίπτωση που δεν υπήρχε προϊόν με τέτοιον μοναδικό κωδικό, επιστρέφεται το αντίστοιχο μήνυμα λάθους.
-
