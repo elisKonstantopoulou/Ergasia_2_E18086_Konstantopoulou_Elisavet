@@ -136,16 +136,24 @@ currUser = users.find_one({'email':data["email"]})
 
 ## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
 ```python 
-currUser = users.find_one({'email':data["email"]})
-        if currUser != None:
-            flag2 = currUser.get('category')
-            if flag2=="User":            
-                return Response("User's Cart: " + json.dumps(currUser['cart'], indent=4))
-            else:
-                return Response("Only simple users can perform this action.", status=401, mimetype='application/json')
-        else:
-            return Response("No user found!")
+temporary_cart=currUser["cart"] # store cart in temporary table
+flag3 = False
+pointer = 0
+for i in range(1, len(temporary_cart)): 
+        if list(temporary_cart[i].keys())[0] == data['productID']: 
+                flag3=True
+                pointer = i
+                break
+if flag3==True:
+        temporary_cart[0] = temporary_cart[0] - float(product['price']) * float(temporary_cart[pointer].get(data['productID']))
+        temporary_cart.pop(pointer)                          
+        currUser = users.update_one({'email':data['email']}, {"$set":{"cart":temporary_cart}})
+        return Response(json.dumps(temporary_cart, indent=3), status=200, mimetype='application/json')                            
+else: 
+        return Response("No such product in cart!",status=500,mimetype="application/json")
 ```
+Μετά την αυθεντικοποίηση του χρήστη, τον έλεγχο για το εάν είναι απλός χρήστης και τον έλεγχο ύπαρξης του προϊόντος και καλαθιού, εκτελούνται οι εντολές για την διαγραφή δοθέντος ποροϊόντος στο καλάθι του χρήστη. Η μεταβλητή *flag3*, η οποία είναι μια boolean μεταβλητή, αρχικοποιείται ως False. Αυτή η μεταβλητή θα γίνει True, εάν στην επανάλληψη βρεθεί ένα προϊόν με *productIdD* ίδιο με αυτό που έδωσε ο χρήστης. Εάν βρεθεί, αλλαζουμε την τιμή του πρώτου κελιού του πίνακα *temporary_cart*, μειώνοντας το *total*, αφαιρούμε το προϊόν από το καλάθι και ενημερώνουμε το αντίστοιχο dictionary στο collection **users**. Εάν δεν βρεθεί το προϊόν, επιστρέφεται το ανάλογο μήνυμα.
+<img src="/ergasia_2_screenshots/05_user_deleteFromCart/deleteFromCart.png" width=100%>
 
 ## ENDPOINT 8 - ΔΙΑΓΡΑΦΗ ΧΡΗΣΤΗ
 ```python
