@@ -61,7 +61,7 @@ if users.find_one({"$and":[{"username":data["username"]}, {"password":data["pass
 <img src="/ergasia_2_screenshots/01_login/user_1_logged_in.png" width=100%>
 <img src="/ergasia_2_screenshots/01_login/endpoint_admin_00_login.png" width=100%>
 
-## ENDPOINT 2 - ΑΝΑΖΗΤΗΣΗ ΠΡΟΙΟΝΤΟΣ
+## ENDPOINT 2 - ΑΝΑΖΗΤΗΣΗ ΠΡΟΪΟΝΤΟΣ
 ```python
 elif "category" in data:
                 search = products.find({'category':data["category"]})
@@ -78,7 +78,7 @@ elif "category" in data:
 
 <img src="/ergasia_2_screenshots/02_user_searchProduct/endpoint_03_searchProduct.png" width=100%>
 
-## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΛΑΘΙ
+## ENDPOINT 3 - ΠΡΟΣΘΗΚΗ ΠΡΟΪΟΝΤΟΣ ΣΤΟ ΚΑΛΑΘΙ
 ```python 
 new_quantity = int(data['quantity'])
 if new_quantity<=int(product['quantity']):
@@ -134,7 +134,7 @@ currUser = users.find_one({'email':data["email"]})
 
 <img src="/ergasia_2_screenshots/04_user_viewCart/viewCart.png" width=100%>
 
-## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
+## ENDPOINT 5 - ΔΙΑΓΡΑΦΗ ΠΡΟΪΟΝΤΟΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ
 ```python 
 temporary_cart=currUser["cart"] # store cart in temporary table
 flag3 = False
@@ -155,6 +155,40 @@ else:
 Μετά την αυθεντικοποίηση του χρήστη, τον έλεγχο για το εάν είναι απλός χρήστης και τον έλεγχο ύπαρξης του προϊόντος και καλαθιού, εκτελούνται οι εντολές για την διαγραφή δοθέντος ποροϊόντος στο καλάθι του χρήστη. Η μεταβλητή *flag3*, η οποία είναι μια boolean μεταβλητή, αρχικοποιείται ως False. Αυτή η μεταβλητή θα γίνει True, εάν στην επανάλληψη βρεθεί ένα προϊόν με *productIdD* ίδιο με αυτό που έδωσε ο χρήστης. Εάν βρεθεί, αλλαζουμε την τιμή του πρώτου κελιού του πίνακα *temporary_cart*, μειώνοντας το *total*, αφαιρούμε το προϊόν από το καλάθι και ενημερώνουμε το αντίστοιχο dictionary στο collection **users**. Εάν δεν βρεθεί το προϊόν, επιστρέφεται το ανάλογο μήνυμα.
 <img src="/ergasia_2_screenshots/05_user_deleteFromCart/deleteFromCart.png" width=100%>
 
+## ENDPOINT 6 - ΑΓΟΡΑ ΠΡΟΪΟΝΤΩΝ
+```python 
+if len(data["card"])==16:
+        if not 'cart' in currUser: # if user has no cart
+                return Response("Can't check out, no cart found!", status=500, mimetype='application/json')
+        else:
+                temporary_cart=currUser["cart"]
+                total = currUser['cart'][0]
+                orders = []
+                if 'order_history' in currUser:
+                        orders = currUser['order_history']
+                orders.append(temporary_cart)
+                users.update_one({"email":data['email']},{"$set":{"order_history":orders}})
+                users.update_one({"email":data['email']}, {"$unset":{"cart":""}})
+                return Response("Checkout Successful.\nThank you for your purchase!\nRECEIPT:\nPRODUCT ID : QUANTITY\n"+json.dumps(temporary_cart, indent=4) + "\nTOTAL: " + json.dumps(total), status=200, mimetype='application/json')
+else:
+        return Response("Invalid card number!", status=401, mimetype='application/json')
+```
+Αρχικά ελέγχεται αν ο αριθμός πιστωτκής κάρτας που έχει εισάγει ο χρήστης είναι έγκυρος, αν δηλαδή είναι 16 ψηφία. Σε περίπτωση που δεν είναι, εμφανίζεται το ανάλογο μήνυμα. Μόνο εάν ο αριθμός πιστωτικής κάρτας είναι έγκυρος προχωράμε στα επόμενα βήματα. Μετά την αυθεντικοποίηση του χρήστη και τον έλεγχο για το εάν είναι απλός χρήστης, εκτελούνται οι εντολές για την αγορά των πρϊόντων στο καλάθι του χρήστη. Εάν ο χρήστης δεν έχει καλάθι, τότε επιστρέφεται το ανάλογο μήνυμα. Σε περίπτωση που έχει, περνάμε την αγορά του σε έναν προσωρινό πίνακα **orders**, με σκοπό, είτε να εισάγουμε το καλάθι αυτό στο dictionary *orders_history*, ή να δημιουργήσουμε το dictionary αυτό και ύστερα να το προσθέσουμε. Στα e-commerse shops, μετά το checkout το καλάθι του χρήστη αδειάζει, κάτι το οποίο υλοποιείται και εδώ. Τέλος, επιστρέφεται το καλάθι, με τα μηνύματα ότι η συναλλαγή ήταν επιτυχής και την έκδοση μιας απόδειξης.
+<img src="/ergasia_2_screenshots/06_user_buy/buy.png" width=100%>
+
+## ENDPOINT 7 - ΕΜΦΑΝΙΣΗ ΙΣΤΟΡΙΚΟΥ ΠΑΡΑΓΓΕΛΙΩΝ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΧΡΗΣΤΗ
+```python 
+if not 'order_history' in currUser: # user hasn't made any purchases
+        return Response("There are no previous orders!", status=401, mimetype='application/json')
+else:
+        temporary_history = currUser['order_history'] # storing it temporarily (same logic as temporary_cart)
+        return Response("ORDER HISTORY:\n " + json.dumps(currUser['order_history'], indent=4))
+```
+Μετά την αυθεντικοποίηση του χρήστη και τον έλεγχο για το εάν είναι απλός χρήστης, ακολουθούμε την ίδια λογική με το endpoint **_viewCart_**. Εάν ο χρήστης δεν έχει πραγματοποιήσει καμία αγορά, το ιστορικό παραγγελιών είναι ανύπαρκτο, οπότε επιστρέφεται το ανάλογο μήνυμα. Σε διαφορετική περίπτωση, περνάμε το dictionary αυτό σε μια προσωρινή μεταβλητή και το επιστρέφουμε στον χρήστη.
+<img src="/ergasia_2_screenshots/07_user_viewOH/viewOH.png" width=100%>
+<img src="/ergasia_2_screenshots/07_user_viewOH/OH.png" width=30%>
+
+
 ## ENDPOINT 8 - ΔΙΑΓΡΑΦΗ ΧΡΗΣΤΗ
 ```python
 user = users.find_one({'email':data["email"]})
@@ -172,7 +206,7 @@ user = users.find_one({'email':data["email"]})
 <img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserr.png" width=30%>
 <img src="/ergasia_2_screenshots/08_user_deleteUser/endpoint_deleteUserrr.png" width=30%>
 
-## ENDPOINT 9 - ADMIN: ΕΙΣΑΓΩΓΗ ΝΕΟΥ ΠΡΟΙΟΝΤΟΣ
+## ENDPOINT 9 - ADMIN: ΕΙΣΑΓΩΓΗ ΝΕΟΥ ΠΡΟΪΟΝΤΟΣ
 ```python
     product = {"name": data['name'], "category": data['category'], "quantity":['quantity'], "description":['description'], "price":['price']}
     products.insert_one(product)
@@ -183,7 +217,7 @@ user = users.find_one({'email':data["email"]})
 <img src="/ergasia_2_screenshots/09_admin_insertProduct/endpoint_admin_01_insertProduct(1).png" width=100%>
 <img src="/ergasia_2_screenshots/09_admin_insertProduct/endpoint_admin_01_insertProduct(2).png" width=60%>
 
-## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΙΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
+## ENDPOINT 10 - ADMIN: ΔΙΑΓΡΑΦΗ ΠΡΟΪΟΝΤΟΣ ΑΠΟ ΤΟ ΣΥΣΤΗΜΑ
 ```python
     product = products.find_one({"product_id":data['product_id']})
     if product != None:
@@ -198,7 +232,7 @@ user = users.find_one({'email':data["email"]})
 <img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(1).png" width=100%>
 <img src="/ergasia_2_screenshots/10_admin_deleteProduct/endpoint_admin_02_deleteProduct(2).png" width=50%>
 
-## ENDPOINT 11 - ADMIN: ΕΝΗΜΕΡΩΣΗ ΠΡΟΙΟΝΤΟΣ
+## ENDPOINT 11 - ADMIN: ΕΝΗΜΕΡΩΣΗ ΠΡΟΪΟΝΤΟΣ
 ```python
 if product != None:
         if "name" in data:
